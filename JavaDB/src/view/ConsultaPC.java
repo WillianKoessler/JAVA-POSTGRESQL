@@ -3,9 +3,7 @@ package view;
 import DAO.PCDAO;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import model.PC;
 
@@ -14,33 +12,17 @@ public class ConsultaPC extends javax.swing.JPanel {
     public ConsultaPC() {
         initComponents();
         
-        jTable.getModel().addTableModelListener(new TableModelListener(){
-            @Override
-            public void tableChanged(TableModelEvent tme) {
-                //System.out.println("["+ tme.getColumn() + ", " + tme.getFirstRow() + "] Table operation not yet supported.");
-                int row = tme.getFirstRow();
-                if(query != null)
-                    if(query.size() > row)
-                        System.out.println(query.get(row));
+        jTable.getModel().addTableModelListener((TableModelEvent tme) -> {
+            if(tme.getType() == TableModelEvent.UPDATE && query != null && query.size() > tme.getFirstRow()){
+                int row = jTable.getSelectedRow();
+                PC pc = new PC();
+                pc.setID(Integer.parseInt(jTable.getModel().getValueAt(row,0).toString()));
+                pc.setAddress(jTable.getModel().getValueAt(row, 1).toString());
+                pc.setName(jTable.getModel().getValueAt(row, 2).toString());
+                System.out.println("Table Updating object: "+pc);
+                new PCDAO().update(pc);
             }
         });
-//        jTable.getModel().addTableModelListener(new TableModelListener(){
-//            System.out.println("table changed");
-//        });
-
-//            switch(evt.getKeyCode()){
-//                case KeyEvent.VK_DELETE:
-//                    new PCDAO().delete(
-//                            Integer.parseInt(
-//                                    jTable.getModel().getValueAt(
-//                                            jTable.getSelectedRow(),0).toString()
-//                            )
-//                    );
-//                    btnQueryActionPerformed(null);
-//                    break;
-//                case KeyEvent.VK_ENTER:
-//                    break;
-//            }
     }
 
     @SuppressWarnings("unchecked")
@@ -182,21 +164,14 @@ public class ConsultaPC extends javax.swing.JPanel {
 
     private void btnQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQueryActionPerformed
         query = new PCDAO().retrieve(txtName.getText(), txtIP.getText());
-        if (query != null) {
-            System.out.println("Query returned results.");
-            DefaultTableModel model = (DefaultTableModel)jTable.getModel();
-            model.setRowCount(0);
-            query.forEach((pc) -> {
-                model.addRow(new Object[]{pc.getID(), pc.getAddress(), pc.getName()});
-            });
-        } else {
-            System.out.println("Query returned no results.");
-            JOptionPane.showMessageDialog(null, "Query returned no results.");
-        }
+        System.out.println("Query returned results.");
+        DefaultTableModel model = (DefaultTableModel)jTable.getModel();
+        model.setRowCount(0);
+        query.forEach((pc) -> {model.addRow(new Object[]{pc.getID(), pc.getAddress(), pc.getName()});});
     }//GEN-LAST:event_btnQueryActionPerformed
     
     private void jTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTableKeyPressed
-                if(evt.getKeyCode() ==  KeyEvent.VK_DELETE){
+                if(evt.getKeyCode() ==  KeyEvent.VK_DELETE && jTable.getRowCount()>0){
                     new PCDAO().delete(
                             Integer.parseInt(
                                     jTable.getModel().getValueAt(

@@ -16,7 +16,7 @@ public class PC {
     
     @Override
     public String toString(){
-        return " intance of (ProvaPC) [id="+id+"] | [address="+address+"] | [name="+name+"]";
+        return " intance of (PC) [id="+id+"] | [address="+address+"] | [name="+name+"]";
     }
 
     public int getID() {

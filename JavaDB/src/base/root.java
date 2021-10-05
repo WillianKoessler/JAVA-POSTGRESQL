@@ -2,6 +2,7 @@ package base;
 
 
 
+import DAO.ClientDAO;
 import DAO.PCDAO;
 import javax.swing.JOptionPane;
 import view.MainView;
@@ -19,6 +20,7 @@ public class root extends javax.swing.JFrame {
                 try
                 {
                     new PCDAO().insert();
+                    new ClientDAO().insert();
                 }catch(Exception e){
                     JOptionPane.showMessageDialog(null, e.getMessage());
                     System.exit(1);

@@ -1,21 +1,31 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package view;
 
-/**
- *
- * @author PC 17
- */
+import DAO.ClientDAO;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.DefaultTableModel;
+import model.Client;
+
 public class ConsultaCliente extends javax.swing.JPanel {
 
-    /**
-     * Creates new form ConsultaCliente
-     */
+    private ArrayList<Client> query;
+
     public ConsultaCliente() {
         initComponents();
+
+        jTable.getModel().addTableModelListener((TableModelEvent tme) -> {
+            if (tme.getType() == TableModelEvent.UPDATE && query != null && query.size() > tme.getFirstRow()) {
+                int row = jTable.getSelectedRow();
+                Client c = new Client();
+                c.setID(Integer.parseInt(jTable.getModel().getValueAt(row, 0).toString()));
+                c.setReg(Integer.parseInt(jTable.getModel().getValueAt(row, 1).toString()));
+                c.setName(jTable.getModel().getValueAt(row, 2).toString());
+                System.out.println("Table Updating object: " + c);
+                new ClientDAO().update(c);
+            }
+        });
     }
 
     /**
@@ -40,7 +50,19 @@ public class ConsultaCliente extends javax.swing.JPanel {
 
         jLabel1.setText("Nome:");
 
+        txtName.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtNameKeyPressed(evt);
+            }
+        });
+
         jLabel2.setText("Matrícula:");
+
+        txtMat.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtMatKeyPressed(evt);
+            }
+        });
 
         btnCancel.setText("Cancelar");
         btnCancel.addActionListener(new java.awt.event.ActionListener() {
@@ -50,109 +72,15 @@ public class ConsultaCliente extends javax.swing.JPanel {
         });
 
         btnQuery.setText("Consultar");
+        btnQuery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQueryActionPerformed(evt);
+            }
+        });
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
                 "ID", "Matrícula", "Nome"
@@ -162,7 +90,7 @@ public class ConsultaCliente extends javax.swing.JPanel {
                 java.lang.Short.class, java.lang.Integer.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, true, true
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -171,6 +99,11 @@ public class ConsultaCliente extends javax.swing.JPanel {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        jTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTableKeyPressed(evt);
             }
         });
         jScrollPane1.setViewportView(jTable);
@@ -237,6 +170,48 @@ public class ConsultaCliente extends javax.swing.JPanel {
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         this.getParent().remove(this);
     }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void btnQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQueryActionPerformed
+        int reg = -1;
+        try{
+            reg = (txtMat.getText() != null && !txtMat.getText().equals("")) ?
+                    Integer.parseInt(txtMat.getText()) :
+                    -1;
+        } catch(NumberFormatException e){
+            System.out.println("Invalid format for Registry.\nException thrown: "+e.getMessage());
+            JOptionPane.showMessageDialog(null, "Invalid format for Registry.\nException thrown: "+e.getMessage());
+        }
+        query = new ClientDAO().retrieve(txtName.getText(), reg);
+        DefaultTableModel model = (DefaultTableModel) jTable.getModel();
+        model.setRowCount(0);
+        query.forEach((c) -> {
+            model.addRow(new Object[]{c.getID(), c.getReg(), c.getName()});
+        });
+    }//GEN-LAST:event_btnQueryActionPerformed
+
+    private void jTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTableKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_DELETE && jTable.getRowCount() > 0) {
+            new ClientDAO().delete(
+                    Integer.parseInt(
+                            jTable.getModel().getValueAt(
+                                    jTable.getSelectedRow(), 0).toString()
+                    )
+            );
+            btnQueryActionPerformed(null);
+        }
+    }//GEN-LAST:event_jTableKeyPressed
+
+    private void txtNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNameKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            btnQueryActionPerformed(null);
+        }
+    }//GEN-LAST:event_txtNameKeyPressed
+
+    private void txtMatKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMatKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            btnQueryActionPerformed(null);
+        }
+    }//GEN-LAST:event_txtMatKeyPressed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
