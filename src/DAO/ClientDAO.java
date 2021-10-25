@@ -17,9 +17,11 @@ public class ClientDAO {
 
     public ClientDAO() throws Error {
         conn = ConnectionFactory.getConnection();
-        reg_count = 0;
+        updateREG();
     }
-
+    public static int getCurrentCount(){
+        return reg_count;
+    }
     public void delete(int reg) {
         String sql = "DELETE FROM client WHERE(registry=?);";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -155,12 +157,12 @@ public class ClientDAO {
             ps.setString(5, item.getCourse());
             ps.execute();
             ps.close();
-            JOptionPane.showMessageDialog(null, "Object was successifully inserted!\n" + item);
         } catch (SQLException e) {
             System.out.println("Failed to insert object (" + item + ")\nException thrown: " + e.getMessage());
             JOptionPane.showMessageDialog(null, "Failed to insert object (" + item + ")\nException thrown: " + e.getMessage());
+            return -1;
         }
-        return reg_count;
+        return reg_count-1;
     }
 
     public void update(Client item) {

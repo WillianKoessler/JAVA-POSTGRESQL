@@ -16,9 +16,11 @@ public class PCDAO {
 
     public PCDAO() throws Error {
         conn = ConnectionFactory.getConnection();
-        id_count = 0;
+        updateID();
     }
-
+    public static int getCurrentCount(){
+        return id_count;
+    }
     public void delete(int id) {
         String sql = "DELETE FROM pc WHERE(id=?);";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -114,7 +116,7 @@ public class PCDAO {
         }
     }
 
-    public void insert(PC item) {
+    public int insert(PC item) {
         updateID();
         String sql = "INSERT INTO pc(id, address, name) VALUES(?,?,?);";
         try {
@@ -124,10 +126,11 @@ public class PCDAO {
             ps.setString(3, item.getName());
             ps.execute();
             ps.close();
-            JOptionPane.showMessageDialog(null, "Object was successifully inserted!\n" + item);
+            return id_count-1;
         } catch (SQLException e) {
             System.out.println("Failed to insert object (" + item + ")\nException thrown: " + e.getMessage());
             JOptionPane.showMessageDialog(null, "Failed to insert object (" + item + ")\nException thrown: " + e.getMessage());
+            return -1;
         }
     }
 

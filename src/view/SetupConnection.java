@@ -324,9 +324,6 @@ public class SetupConnection extends javax.swing.JPanel {
             announce(err, code);
             return;
         }
-        if (!rAdd.contains(add) && !rDB.contains(db) && !rUser.contains(user) && !rPass.contains(pass)) {
-            generateRecord();
-        }
         ConnectionFactory.setConnectionConfiguration(
                 txtAddress.getText() + '/' + txtDatabase.getText(),
                 txtUser.getText(),
@@ -334,6 +331,9 @@ public class SetupConnection extends javax.swing.JPanel {
         );
         try {
             if (ConnectionFactory.getConnection() != null) {
+                if (!rAdd.contains(add) && !rDB.contains(db) && !rUser.contains(user) && !rPass.contains(pass)) {
+                    generateRecord();
+                }
                 CloseWindow(evt);
             }
         } catch (Error e) {

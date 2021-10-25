@@ -9,7 +9,17 @@ public class Error extends Exception {
     public enum Severity {
         LOW, MEDIUM, HIGH
     };
-
+    public Error(String message, String source, Severity s) {
+        super("*****ERROR*****"
+                + "\nSOURCE: " + source
+                + "\nMESSAGE: " + message
+                + "\nSEVERITY: " + s
+        );
+        msg = message;
+        src = source;
+        sev = s;
+        prev = new Exception();
+    }
     public Error(String message, String source, Severity s, Exception previous) {
         super("*****ERROR*****"
                 + "\nSOURCE: " + source
@@ -21,7 +31,6 @@ public class Error extends Exception {
         src = source;
         sev = s;
         prev = previous;
-
     }
 
     public String message() {

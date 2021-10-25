@@ -1,25 +1,23 @@
 package view;
 
-import Utils.DocFilter;
 import DAO.ClientDAO;
 import ErrorHandling.Error;
 import java.awt.event.KeyEvent;
-import java.sql.Date;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.text.PlainDocument;
 import model.Client;
 
 public class CadastroCliente extends javax.swing.JPanel {
-    private final PlainDocument regDoc;
+
     public CadastroCliente() {
         initComponents();
-        regDoc = (PlainDocument)txtMat.getDocument();
-        regDoc.setDocumentFilter(new DocFilter());
+        Announcement.setText("");
+        txtAddress.setText("");
+        txtBirth.setText("01/01/1899");
+        txtCourse.setText("");
+        txtMat.setText(Integer.toString(ClientDAO.getCurrentCount()));
+        txtName.setText("");
     }
 
     @SuppressWarnings("unchecked")
@@ -29,7 +27,6 @@ public class CadastroCliente extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel2 = new javax.swing.JLabel();
-        txtMat = new javax.swing.JTextField();
         txtName = new javax.swing.JTextField();
         btnCancel = new javax.swing.JButton();
         btnCadastrar = new javax.swing.JButton();
@@ -41,22 +38,17 @@ public class CadastroCliente extends javax.swing.JPanel {
         txtCourse = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtAddress = new javax.swing.JTextArea();
+        Announcement = new javax.swing.JLabel();
+        txtMat = new javax.swing.JLabel();
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel1.setText("Cadastro de Clientes");
 
         jLabel2.setText("Nome:");
 
-        txtMat.setFocusable(false);
-        txtMat.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtMatKeyPressed(evt);
-            }
-        });
-
         txtName.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtNameKeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -78,10 +70,14 @@ public class CadastroCliente extends javax.swing.JPanel {
 
         jLabel5.setText("Data de Nascimento:");
 
-        txtBirth.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter()));
+        try {
+            txtBirth.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("##/##/####")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
         txtBirth.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtBirthKeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -91,7 +87,7 @@ public class CadastroCliente extends javax.swing.JPanel {
 
         txtCourse.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtCourseKeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -99,10 +95,15 @@ public class CadastroCliente extends javax.swing.JPanel {
         txtAddress.setRows(5);
         txtAddress.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtAddressKeyPressed(evt);
+                Enter(evt);
             }
         });
         jScrollPane1.setViewportView(txtAddress);
+
+        Announcement.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        Announcement.setText("ANNOUNCEMENT");
+
+        txtMat.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -114,10 +115,10 @@ public class CadastroCliente extends javax.swing.JPanel {
                     .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 144, Short.MAX_VALUE)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtMat, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtMat, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addGap(18, 18, 18)
@@ -125,13 +126,7 @@ public class CadastroCliente extends javax.swing.JPanel {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 172, Short.MAX_VALUE)
-                                .addComponent(btnCadastrar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnCancel))
-                            .addComponent(jScrollPane1)))
+                        .addComponent(jScrollPane1))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -139,7 +134,13 @@ public class CadastroCliente extends javax.swing.JPanel {
                         .addGap(18, 18, 18)
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtCourse)))
+                        .addComponent(txtCourse))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(Announcement)
+                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addComponent(btnCadastrar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCancel)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -148,8 +149,8 @@ public class CadastroCliente extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(txtMat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
+                    .addComponent(jLabel4)
+                    .addComponent(txtMat, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -167,11 +168,12 @@ public class CadastroCliente extends javax.swing.JPanel {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
-                        .addGap(0, 65, Short.MAX_VALUE)))
+                        .addGap(0, 68, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCancel)
-                    .addComponent(btnCadastrar))
+                    .addComponent(btnCadastrar)
+                    .addComponent(Announcement))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -180,64 +182,68 @@ public class CadastroCliente extends javax.swing.JPanel {
         this.getParent().remove(this);
     }//GEN-LAST:event_btnCancelActionPerformed
 
-    private boolean isNull(javax.swing.JTextField txt){
+    private boolean isNull(javax.swing.JTextField txt) {
+        return txt == null || txt.getText().equals("");
+    }
+
+    private boolean isNull(javax.swing.JTextArea txt) {
         return txt == null || txt.getText().equals("");
     }
     private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarActionPerformed
-        Client c = new Client();
-        try{
-            if(!isNull(txtName)){
-                c.setName(txtName.getText());
+        try {
+            if (isNull(txtName)) {
+                Announcement.setText("O Nome é Obrigatório.");
+                return;
             }
-            if(!isNull(txtBirth)){
-                try{
-                DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-                java.sql.Date data = new java.sql.Date(df.parse(txtBirth.getText()).getTime());
-                c.setBirth(data);
-                }catch(ParseException e){
-                    JOptionPane.showMessageDialog(null, "Invalid Date");
-                }
+            if (isNull(txtBirth)) {
+                Announcement.setText("<html><div align=center>A Data de Nascimento<br>é Obrigatória.</div></html>");
+                return;
             }
-            if(!isNull(txtCourse)){
-                c.setCourse(txtCourse.getText());
+            if (isNull(txtCourse)) {
+                Announcement.setText("O Curso é Obrigatório.");
+                return;
             }
-            if(txtAddress != null && !txtAddress.getText().equals("")){
-                c.setAddress(txtAddress.getText());
+            if (isNull(txtAddress)) {
+                Announcement.setText("O Endereço é Obrigatório.");
+                return;
             }
-            try {
-                txtMat.setText(Integer.toString(new ClientDAO().insert(c)));
-            } catch (Error ex) {
-                Logger.getLogger(CadastroCliente.class.getName()).log(Level.SEVERE, null, ex);
+
+            Client c = new Client();
+            c.setName(txtName.getText());
+            c.setBirth(new java.sql.Date(new SimpleDateFormat("dd/MM/yyyy").parse(txtBirth.getText()).getTime()));
+            c.setCourse(txtCourse.getText());
+            c.setAddress(txtAddress.getText());
+            int result = new ClientDAO().insert(c);
+            if(result == -1){
+                throw new Error("Error inserting object:\n"+c.toString(), "CadastroCliente", Error.Severity.MEDIUM);
             }
-            
-        } catch(NumberFormatException e){
-            System.out.println("Invalid format for Registry.\nException thrown: "+e.getMessage());
-            JOptionPane.showMessageDialog(null, "Invalid format for Registry.\nException thrown: "+e.getMessage());
+            txtMat.setText(Integer.toString(ClientDAO.getCurrentCount()));
+            Announcement.setText("Cliente inserido com sucesso!");
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid format for Registry.\nException thrown: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Invalid format for Registry.\nException thrown: " + e.getMessage());
+        } catch (ParseException e) {
+            System.out.println("Invalid Date\n"+e.getMessage());
+            JOptionPane.showMessageDialog(null, "Invalid Date\n"+e.getMessage());
+        } catch (Error e) {
+            JOptionPane.showMessageDialog(null, e);
         }
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
-    private void txtMatKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMatKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtMatKeyPressed
-
-    private void txtNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNameKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtNameKeyPressed
-
-    private void txtBirthKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBirthKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtBirthKeyPressed
-
-    private void txtAddressKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAddressKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtAddressKeyPressed
-
-    private void txtCourseKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCourseKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtCourseKeyPressed
+    private void Enter(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Enter
+        switch (evt.getKeyCode()) {
+            case KeyEvent.VK_ENTER:
+                btnCadastrarActionPerformed(null);
+                break;
+            case KeyEvent.VK_DELETE:
+                btnCancelActionPerformed(null);
+                break;
+        }
+    }//GEN-LAST:event_Enter
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel Announcement;
     private javax.swing.JButton btnCadastrar;
     private javax.swing.JButton btnCancel;
     private javax.swing.JLabel jLabel1;
@@ -251,7 +257,7 @@ public class CadastroCliente extends javax.swing.JPanel {
     private javax.swing.JTextArea txtAddress;
     private javax.swing.JFormattedTextField txtBirth;
     private javax.swing.JTextField txtCourse;
-    private javax.swing.JTextField txtMat;
+    private javax.swing.JLabel txtMat;
     private javax.swing.JTextField txtName;
     // End of variables declaration//GEN-END:variables
 }

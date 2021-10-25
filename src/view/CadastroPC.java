@@ -42,6 +42,7 @@ public class CadastroPC extends javax.swing.JPanel {
         ip4.setName("ip4");
 
         Announcement.setText("");
+        ID.setText(Integer.toString(PCDAO.getCurrentCount()));
     }
 
     @SuppressWarnings("unchecked")
@@ -63,6 +64,8 @@ public class CadastroPC extends javax.swing.JPanel {
         jLabel6 = new javax.swing.JLabel();
         ip4 = new javax.swing.JTextField();
         Announcement = new javax.swing.JLabel();
+        ID = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel1.setText("Cadastro de Computador");
@@ -124,6 +127,12 @@ public class CadastroPC extends javax.swing.JPanel {
         Announcement.setText("ANNOUNCEMENT");
         Announcement.setAlignmentX(0.5F);
 
+        ID.setAlignmentX(0.5F);
+        ID.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+        ID.setFocusable(false);
+
+        jLabel8.setText("ID:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -143,7 +152,6 @@ public class CadastroPC extends javax.swing.JPanel {
                         .addComponent(btnCancel))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(Announcement)
@@ -162,15 +170,24 @@ public class CadastroPC extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(ip4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 112, Short.MAX_VALUE)))
+                                .addComponent(ip4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 153, Short.MAX_VALUE)
+                                .addComponent(jLabel8)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ID, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel8))
+                    .addComponent(ID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -225,7 +242,13 @@ public class CadastroPC extends javax.swing.JPanel {
         pc.setName(txtName.getText());
         pc.setAddress(IP);
         try {
-            new PCDAO().insert(pc);
+            int result = new PCDAO().insert(pc);
+            if(result != -1){
+                ID.setText(Integer.toString(result));
+                Announcement.setText("PC inserido com Sucesso!");
+            } else {
+                Announcement.setText("Erro ao inserir novo PC");
+            }
         } catch (Error e) {
             System.out.println(e);
         }
@@ -241,6 +264,7 @@ public class CadastroPC extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Announcement;
+    private javax.swing.JLabel ID;
     private javax.swing.JButton btnCadastrar;
     private javax.swing.JButton btnCancel;
     private javax.swing.JTextField ip1;
@@ -253,6 +277,7 @@ public class CadastroPC extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextField txtName;
     // End of variables declaration//GEN-END:variables
