@@ -1,11 +1,15 @@
 package view;
 
+import Utils.DocFilter;
 import DAO.ClientDAO;
+import ErrorHandling.Error;
 import java.awt.event.KeyEvent;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.PlainDocument;
 import model.Client;
@@ -200,7 +204,11 @@ public class CadastroCliente extends javax.swing.JPanel {
             if(txtAddress != null && !txtAddress.getText().equals("")){
                 c.setAddress(txtAddress.getText());
             }
-            txtMat.setText(Integer.toString(new ClientDAO().insert(c)));
+            try {
+                txtMat.setText(Integer.toString(new ClientDAO().insert(c)));
+            } catch (Error ex) {
+                Logger.getLogger(CadastroCliente.class.getName()).log(Level.SEVERE, null, ex);
+            }
             
         } catch(NumberFormatException e){
             System.out.println("Invalid format for Registry.\nException thrown: "+e.getMessage());

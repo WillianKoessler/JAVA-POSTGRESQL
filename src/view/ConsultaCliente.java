@@ -1,12 +1,16 @@
 package view;
 
+import Utils.DocFilter;
 import DAO.ClientDAO;
+import ErrorHandling.Error;
 import java.awt.event.KeyEvent;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
@@ -39,7 +43,11 @@ public class ConsultaCliente extends javax.swing.JPanel {
                 }
                 c.setAddress(jTable.getModel().getValueAt(row, 4).toString());
                 System.out.println("Table Updating object: " + c);
-                new ClientDAO().update(c);
+                try {
+                    new ClientDAO().update(c);
+                } catch (Error ex) {
+                    Logger.getLogger(ConsultaCliente.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -211,6 +219,8 @@ public class ConsultaCliente extends javax.swing.JPanel {
         } catch (NumberFormatException e) {
             System.out.println("Invalid format for Registry.\nException thrown: " + e.getMessage());
             JOptionPane.showMessageDialog(null, "Invalid format for Registry.\nException thrown: " + e.getMessage());
+        } catch (Error ex) {
+            Logger.getLogger(ConsultaCliente.class.getName()).log(Level.SEVERE, null, ex);
         }
         DefaultTableModel model = (DefaultTableModel) jTable.getModel();
         model.setRowCount(0);
@@ -227,13 +237,17 @@ public class ConsultaCliente extends javax.swing.JPanel {
 
     private void jTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTableKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_DELETE) {
-            new ClientDAO().delete(
-                    Integer.parseInt(
-                            jTable.getModel().getValueAt(
-                                    jTable.getSelectedRow(), 0).toString()
-                    )
-            );
-            btnQueryActionPerformed(null);
+            try {
+                new ClientDAO().delete(
+                        Integer.parseInt(
+                                jTable.getModel().getValueAt(
+                                        jTable.getSelectedRow(), 0).toString()
+                        )
+                );
+                btnQueryActionPerformed(null);
+            } catch (Error ex) {
+                Logger.getLogger(ConsultaCliente.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_jTableKeyPressed
 

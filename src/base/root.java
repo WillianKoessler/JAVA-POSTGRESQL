@@ -2,25 +2,32 @@ package base;
 
 import DAO.ClientDAO;
 import DAO.PCDAO;
+import java.awt.Container;
 import javax.swing.JOptionPane;
 import view.MainView;
+import view.SetupConnection;
 
 public class root extends javax.swing.JFrame {
 
     public root() {
         initComponents();
         jTabbedPane1.addTab("Principal", new MainView());
+        this.setName("root");
     }
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(() -> {
+            JOptionPane.showOptionDialog(null, new SetupConnection(), "Nova Conexão", -1, -1, null, new Object[]{}, null);
             try {
                 new PCDAO().insert();
                 new ClientDAO().insert();
-            } catch (Exception e) {
+            } catch (ErrorHandling.Error err) {
+                System.out.println(err);
                 System.exit(1);
             }
-            new root().setVisible(true);
+            root r = new root();
+            r.setLocationRelativeTo(null);
+            r.setVisible(true);
         });
     }
 

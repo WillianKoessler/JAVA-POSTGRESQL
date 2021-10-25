@@ -1,5 +1,6 @@
 package DAO;
 
+import ErrorHandling.Error;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,16 +14,8 @@ public class PCDAO {
     static int id_count;
     Connection conn;
 
-    public PCDAO() {
-        try {
-            conn = ConnectionFactory.getConnection();
-        } catch (SQLException e) {
-            if(e.getMessage().equals("A tentativa de conexão falhou.")){
-                JOptionPane.showMessageDialog(null, "Falha de autenticação.\nUsuário ou Senha incorretos");
-            } else {
-                JOptionPane.showMessageDialog(null, e.getMessage(), "PCDAO SQLException",1);
-            }
-        }
+    public PCDAO() throws Error {
+        conn = ConnectionFactory.getConnection();
         id_count = 0;
     }
 
@@ -101,7 +94,7 @@ public class PCDAO {
         }
     }
 
-    public void insert() {
+    public void insert() throws ErrorHandling.Error {
         String sql = "INSERT INTO pc(id, address, name) VALUES(-1, '0', 'null');";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -116,7 +109,7 @@ public class PCDAO {
                     == JOptionPane.YES_OPTION) {
                 createTable();
             } else {
-                System.exit(0);
+                throw new ErrorHandling.Error("It is not possible to run the program without proper table 'PC'.", "PCDAO", ErrorHandling.Error.Severity.MEDIUM, e);
             }
         }
     }
@@ -171,7 +164,7 @@ public class PCDAO {
         }
     }
 
-    public void createTable() {
+    public void createTable() throws Error {
         String sql
                 = "CREATE TABLE pc\n"
                 + "(\n"
@@ -189,7 +182,7 @@ public class PCDAO {
             ps.execute();
             ps.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Failed to Create new Table 'pc'.\nException:" + e.getMessage());
+            throw new Error("Failed to Create new Table 'pc'.", "PCDAO.createTable()", Error.Severity.HIGH, e);
         }
     }
 }
