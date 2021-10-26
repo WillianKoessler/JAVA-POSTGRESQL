@@ -1,6 +1,5 @@
 package DAO;
 
-import ErrorHandling.Error;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,13 +13,19 @@ public class PCDAO {
     static int id_count;
     Connection conn;
 
-    public PCDAO() throws Error {
-        conn = ConnectionFactory.getConnection();
-        updateID();
+    public PCDAO() {
+        try {
+            conn = ConnectionFactory.getConnection();
+        } catch (SQLException e) {
+            if(e.getMessage().equals("A tentativa de conexão falhou.")){
+                JOptionPane.showMessageDialog(null, "Falha de autenticação.\nUsuário ou Senha incorretos");
+            } else {
+                JOptionPane.showMessageDialog(null, e.getMessage(), "PCDAO SQLException",1);
+            }
+        }
+        id_count = 0;
     }
-    public static int getCurrentCount(){
-        return id_count;
-    }
+
     public void delete(int id) {
         String sql = "DELETE FROM pc WHERE(id=?);";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -96,7 +101,7 @@ public class PCDAO {
         }
     }
 
-    public void insert() throws ErrorHandling.Error {
+    public void insert() {
         String sql = "INSERT INTO pc(id, address, name) VALUES(-1, '0', 'null');";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -111,12 +116,12 @@ public class PCDAO {
                     == JOptionPane.YES_OPTION) {
                 createTable();
             } else {
-                throw new ErrorHandling.Error("It is not possible to run the program without proper table 'PC'.", "PCDAO", ErrorHandling.Error.Severity.MEDIUM, e);
+                System.exit(0);
             }
         }
     }
 
-    public int insert(PC item) {
+    public void insert(PC item) {
         updateID();
         String sql = "INSERT INTO pc(id, address, name) VALUES(?,?,?);";
         try {
@@ -126,11 +131,10 @@ public class PCDAO {
             ps.setString(3, item.getName());
             ps.execute();
             ps.close();
-            return id_count-1;
+            JOptionPane.showMessageDialog(null, "Object was successifully inserted!\n" + item);
         } catch (SQLException e) {
             System.out.println("Failed to insert object (" + item + ")\nException thrown: " + e.getMessage());
             JOptionPane.showMessageDialog(null, "Failed to insert object (" + item + ")\nException thrown: " + e.getMessage());
-            return -1;
         }
     }
 
@@ -167,7 +171,7 @@ public class PCDAO {
         }
     }
 
-    public void createTable() throws Error {
+    public void createTable() {
         String sql
                 = "CREATE TABLE pc\n"
                 + "(\n"
@@ -185,7 +189,7 @@ public class PCDAO {
             ps.execute();
             ps.close();
         } catch (SQLException e) {
-            throw new Error("Failed to Create new Table 'pc'.", "PCDAO.createTable()", Error.Severity.HIGH, e);
+            JOptionPane.showMessageDialog(null, "Failed to Create new Table 'pc'.\nException:" + e.getMessage());
         }
     }
 }

@@ -1,8 +1,6 @@
 package DAO;
 
-import ErrorHandling.Error;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,16 +10,22 @@ import model.Client;
 
 public class ClientDAO {
 
-    static int reg_count;
+    public static int reg_count;
     Connection conn;
 
-    public ClientDAO() throws Error {
-        conn = ConnectionFactory.getConnection();
-        updateREG();
+    public ClientDAO() {
+        try {
+            conn = ConnectionFactory.getConnection();
+        } catch (SQLException e) {
+            if(e.getMessage().equals("A tentativa de conexão falhou.")){
+                JOptionPane.showMessageDialog(null, "Falha de autenticação.\nUsuário ou Senha incorretos");
+            } else {
+                JOptionPane.showMessageDialog(null, e.getMessage(), "ClientDAO SQLException",1);
+            }
+        }
+        reg_count = 0;
     }
-    public static int getCurrentCount(){
-        return reg_count;
-    }
+
     public void delete(int reg) {
         String sql = "DELETE FROM client WHERE(registry=?);";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -124,8 +128,8 @@ public class ClientDAO {
         }
     }
 
-    public void insert() throws ErrorHandling.Error {
-        String sql = "INSERT INTO client(registry) VALUES(-1);";
+    public void insert() {
+        String sql = "INSERT INTO client VALUES(-1, '0', 'null');";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.execute();
@@ -135,15 +139,22 @@ public class ClientDAO {
             ps.execute();
             ps.close();
         } catch (SQLException e) {
-            System.out.println(e);
             if (JOptionPane.showConfirmDialog(null, "Table 'CLIENT' doesn't exist.\nCreate new one?", "SQL ERROR", JOptionPane.YES_NO_OPTION)
                     == JOptionPane.YES_OPTION) {
                 createTable();
             } else {
-                throw new ErrorHandling.Error("It is not possible to run the program without proper table 'Client'.", "ClientDAO", ErrorHandling.Error.Severity.MEDIUM, e);
+                System.exit(0);
             }
         }
     }
+
+    /*
+    int reg = -1;
+    String name = "NULL";
+    String address = "none";
+    Date birth = new Date(0,0,0);
+    String course = "none";
+     */
 
     public int insert(Client item) {
         updateREG();
@@ -157,12 +168,12 @@ public class ClientDAO {
             ps.setString(5, item.getCourse());
             ps.execute();
             ps.close();
+            JOptionPane.showMessageDialog(null, "Object was successifully inserted!\n" + item);
         } catch (SQLException e) {
             System.out.println("Failed to insert object (" + item + ")\nException thrown: " + e.getMessage());
             JOptionPane.showMessageDialog(null, "Failed to insert object (" + item + ")\nException thrown: " + e.getMessage());
-            return -1;
         }
-        return reg_count-1;
+        return reg_count;
     }
 
     public void update(Client item) {
@@ -189,7 +200,7 @@ public class ClientDAO {
         }
     }
 
-    public void createTable() throws Error {
+    public void createTable() {
         String sql
                 = "CREATE TABLE client\n"
                 + "(\n"
@@ -209,7 +220,7 @@ public class ClientDAO {
             ps.execute();
             ps.close();
         } catch (SQLException e) {
-            throw new Error("Failed to Create new Table 'client'.", "ClientDAO.createTable()", Error.Severity.HIGH, e);
+            JOptionPane.showMessageDialog(null, "Failed to Create new Table 'client'.\nException:" + e.getMessage());
         }
     }
 }

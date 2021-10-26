@@ -1,11 +1,8 @@
 package view;
 
 import DAO.PCDAO;
-import ErrorHandling.Error;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import model.PC;
@@ -23,11 +20,7 @@ public class ConsultaPC extends javax.swing.JPanel {
                 pc.setAddress(jTable.getModel().getValueAt(row, 1).toString());
                 pc.setName(jTable.getModel().getValueAt(row, 2).toString());
                 System.out.println("Table Updating object: "+pc);
-                try {
-                    new PCDAO().update(pc);
-                } catch (Error ex) {
-                    Logger.getLogger(ConsultaPC.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                new PCDAO().update(pc);
             }
         });
     }
@@ -170,31 +163,23 @@ public class ConsultaPC extends javax.swing.JPanel {
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQueryActionPerformed
-        try {
-            query = new PCDAO().retrieve(txtName.getText(), txtIP.getText());
-            DefaultTableModel model = (DefaultTableModel)jTable.getModel();
-            model.setRowCount(0);
-            query.forEach((pc) -> {
-                model.addRow(new Object[]{pc.getID(), pc.getAddress(), pc.getName()});
-            });
-        } catch (Error ex) {
-            Logger.getLogger(ConsultaPC.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        query = new PCDAO().retrieve(txtName.getText(), txtIP.getText());
+        DefaultTableModel model = (DefaultTableModel)jTable.getModel();
+        model.setRowCount(0);
+        query.forEach((pc) -> {
+            model.addRow(new Object[]{pc.getID(), pc.getAddress(), pc.getName()});
+        });
     }//GEN-LAST:event_btnQueryActionPerformed
     
     private void jTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTableKeyPressed
                 if(evt.getKeyCode() ==  KeyEvent.VK_DELETE){
-                    try {
-                        new PCDAO().delete(
-                                Integer.parseInt(
-                                        jTable.getModel().getValueAt(
-                                                jTable.getSelectedRow(),0).toString()
-                                )
-                        );
-                        btnQueryActionPerformed(null);
-                    } catch (Error ex) {
-                        Logger.getLogger(ConsultaPC.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    new PCDAO().delete(
+                            Integer.parseInt(
+                                    jTable.getModel().getValueAt(
+                                            jTable.getSelectedRow(),0).toString()
+                            )
+                    );
+                    btnQueryActionPerformed(null);
       }
     }//GEN-LAST:event_jTableKeyPressed
 
