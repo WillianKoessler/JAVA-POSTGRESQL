@@ -1,22 +1,24 @@
 package view;
 
-import DAO.ClientDAO;
+import Utilities.Utils;
 import java.awt.event.KeyEvent;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.PlainDocument;
-import model.Client;
+import model.Entity;
 
 public class ConsultaCliente extends javax.swing.JPanel {
 
-    private ArrayList<Client> query;
+    private ArrayList<model.Entity> query;
     private final PlainDocument regDoc;
+    static final private DAO.Controller controller = new DAO.Controller("cliente");
 
     public ConsultaCliente() {
         initComponents();
@@ -24,22 +26,42 @@ public class ConsultaCliente extends javax.swing.JPanel {
         regDoc.setDocumentFilter(new DocFilter());
         jTable.getModel().addTableModelListener((TableModelEvent tme) -> {
             if (tme.getType() == TableModelEvent.UPDATE && query != null && query.size() > tme.getFirstRow()) {
-                int row = jTable.getSelectedRow();
-                Client c = new Client();
-                c.setReg(Integer.parseInt(jTable.getModel().getValueAt(row, 0).toString()));
-                c.setName(jTable.getModel().getValueAt(row, 1).toString());
-                c.setAddress(jTable.getModel().getValueAt(row, 2).toString());
                 try {
+                    int row = jTable.getSelectedRow();
+                    model.Entity c = new model.Entity();
+                    c.set("registry", Integer.parseInt(jTable.getModel().getValueAt(row, 0).toString()));
+                    c.set("name", jTable.getModel().getValueAt(row, 1).toString());
+                    c.set("phone", jTable.getModel().getValueAt(row, 2).toString());
                     String txtBirth = jTable.getModel().getValueAt(row, 3).toString();
-                    System.out.println(txtBirth);
                     DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                    c.setBirth(new Date(df.parse(txtBirth).getTime()));
-                } catch (ParseException e) {
-                    JOptionPane.showMessageDialog(null, "Invalid Date\nException thrown: "+e.getMessage());
+                    c.set("birth", new Date(df.parse(txtBirth).getTime()));
+                    c.set("address", jTable.getModel().getValueAt(row, 4).toString());
+                    controller.update(c);
+                } catch (ParseException ex) {
+                    JOptionPane.showMessageDialog(null, "O Formato de Data não pode ser utilizado.\nException thrown: " + ex.getMessage());
                 }
-                c.setAddress(jTable.getModel().getValueAt(row, 4).toString());
-                System.out.println("Table Updating object: " + c);
-                new ClientDAO().update(c);
+            }
+        });
+        java.awt.EventQueue.invokeLater(() -> {
+            Utils.getAncestor(this).setSize(416, 339);
+            if (!controller.insert()) {
+                List<String> v, t;
+                v = new ArrayList<>();
+                t = new ArrayList<>();
+                v.add("name");
+                v.add("course");
+                v.add("birth");
+                v.add("address");
+                t.add("character varying(256)");
+                t.add("character varying(128)");
+                t.add("date");
+                t.add("character varying(512)");
+                if (!controller.createTable("cliente", v, t)) {
+                    Principal main = Utils.getAncestor(this, Principal.class);
+                    main.setButtonEnabled(CadastroCliente.class.getSimpleName(), false);
+                    main.setButtonEnabled(ConsultaCliente.class.getSimpleName(), false);
+                    main.remove(this);
+                }
             }
         });
     }
@@ -65,7 +87,7 @@ public class ConsultaCliente extends javax.swing.JPanel {
 
         txtName.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtNameKeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -73,7 +95,7 @@ public class ConsultaCliente extends javax.swing.JPanel {
 
         txtMat.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtMatKeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -116,7 +138,7 @@ public class ConsultaCliente extends javax.swing.JPanel {
         });
         jTable.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                jTableKeyPressed(evt);
+                DeleteFromTable(evt);
             }
         });
         jScrollPane1.setViewportView(jTable);
@@ -128,6 +150,12 @@ public class ConsultaCliente extends javax.swing.JPanel {
         jLabel3.setText("Consulta de Cliente");
 
         jLabel4.setText("Course:");
+
+        txtCourse.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                Enter(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -192,50 +220,47 @@ public class ConsultaCliente extends javax.swing.JPanel {
         this.getParent().remove(this);
     }//GEN-LAST:event_btnCancelActionPerformed
 
-    private void txtNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNameKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            btnQueryActionPerformed(null);
+    private void Enter(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Enter
+        switch (evt.getKeyCode()) {
+            case KeyEvent.VK_ENTER:
+                btnQueryActionPerformed(null);
+                break;
+            case KeyEvent.VK_ESCAPE:
+                btnCancelActionPerformed(null);
+                break;
         }
-    }//GEN-LAST:event_txtNameKeyPressed
+    }//GEN-LAST:event_Enter
 
-    private boolean isNull(javax.swing.JTextField txt) {
-        return txt == null || txt.getText().equals("");
-    }
     private void btnQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQueryActionPerformed
-        try {
-            int reg = -1;
-            if (!isNull(txtMat)) {
-                reg = Integer.parseInt(txtMat.getText());
-            }
-            query = new ClientDAO().retrieve(reg, txtName.getText(), txtCourse.getText());
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid format for Registry.\nException thrown: " + e.getMessage());
-            JOptionPane.showMessageDialog(null, "Invalid format for Registry.\nException thrown: " + e.getMessage());
-        }
+        int reg = (!Utils.isNull(txtMat) ? Integer.parseInt(txtMat.getText()) : -1);
+        Entity q = new Entity();
+        q.setID(reg);
+        if(!Utils.isNull(txtName)) q.set("name", txtName.getText());
+        if(!Utils.isNull(txtCourse)) q.set("course", txtCourse.getText());
+        query = controller.retrieve(q);
         DefaultTableModel model = (DefaultTableModel) jTable.getModel();
         model.setRowCount(0);
         query.forEach((c) -> {
-            model.addRow(new Object[]{c.getReg(), c.getName(), c.getAddress(), c.getBirth().toString(), c.getCourse()});
+            model.addRow(new Object[]{c.getID(), c.get("name"), c.get("address"), c.get("birth"), c.get("course")});
         });
     }//GEN-LAST:event_btnQueryActionPerformed
 
-    private void txtMatKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMatKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            btnQueryActionPerformed(null);
-        }
-    }//GEN-LAST:event_txtMatKeyPressed
-
-    private void jTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTableKeyPressed
+    private void DeleteFromTable(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_DeleteFromTable
         if (evt.getKeyCode() == KeyEvent.VK_DELETE) {
-            new ClientDAO().delete(
-                    Integer.parseInt(
-                            jTable.getModel().getValueAt(
-                                    jTable.getSelectedRow(), 0).toString()
-                    )
-            );
+            try {
+                if (jTable.getModel().getRowCount() < 1) {
+                    return;
+                }
+                controller.delete(Integer.parseInt(jTable.getModel().getValueAt(jTable.getSelectedRow(), 0).toString()));
+            } catch (NumberFormatException e) {
+                Utils.pop("Erro ao deletar objeto da tabela.\nErro: " + e.getMessage(), Utils.pop.ERRO);
+                return;
+            }
             btnQueryActionPerformed(null);
+        } else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            btnCancelActionPerformed(null);
         }
-    }//GEN-LAST:event_jTableKeyPressed
+    }//GEN-LAST:event_DeleteFromTable
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

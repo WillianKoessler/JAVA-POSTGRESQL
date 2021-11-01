@@ -92,7 +92,7 @@
     </Component>
     <Component class="javax.swing.JTextField" name="txtName">
       <Events>
-        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtNameKeyPressed"/>
+        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="Enter"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
@@ -102,7 +102,7 @@
     </Component>
     <Component class="javax.swing.JTextField" name="txtMat">
       <Events>
-        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtMatKeyPressed"/>
+        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="Enter"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnCancel">
@@ -173,7 +173,7 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTableKeyPressed"/>
+            <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="DeleteFromTable"/>
           </Events>
         </Component>
       </SubComponents>
@@ -194,6 +194,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txtCourse">
+      <Events>
+        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="Enter"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

@@ -1,26 +1,43 @@
 package base;
 
-import DAO.ClientDAO;
-import DAO.PCDAO;
-import javax.swing.JOptionPane;
-import view.MainView;
+import Utilities.Utils;
+import view.Principal;
+import view.SetupConnection;
 
-public class root extends javax.swing.JFrame {
+public final class root extends javax.swing.JFrame {
+
+    private final java.util.Map<String, javax.swing.JPanel> tabStorage;
 
     public root() {
         initComponents();
-        jTabbedPane1.addTab("Principal", new MainView());
+        tabStorage = new java.util.HashMap<>();
+        jTabbedPane1.setName("rootPane");
+        this.setLocationRelativeTo(null);
+        addTab(Principal.class.getSimpleName(), new Principal());
+    }
+
+    public <T extends javax.swing.JPanel> T getTab(String title, Class<T> target) {
+        return (T) tabStorage.get(title);
+    }
+
+    public void addTab(String title, javax.swing.JPanel pane) {
+        tabStorage.put(title, pane);
+        jTabbedPane1.add(title, pane);
     }
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(() -> {
             try {
-                new PCDAO().insert();
-                new ClientDAO().insert();
+//                if(true){ DAO.ConnectionFactory.Configure("localhost:5433", "postgres", "postgres", "123456");
+                if (!SetupConnection.ShowDialog()) {
+                    new root().setVisible(true);
+                } else {
+                    Utils.pop("Conexão não estabelecida.", Utils.pop.WARN);
+                }
             } catch (Exception e) {
+                System.out.println(e);
                 System.exit(1);
             }
-            new root().setVisible(true);
         });
     }
 

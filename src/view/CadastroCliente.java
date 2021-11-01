@@ -1,21 +1,47 @@
 package view;
 
-import DAO.ClientDAO;
+import Utilities.Utils;
+import model.Entity;
 import java.awt.event.KeyEvent;
-import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import javax.swing.JOptionPane;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.text.PlainDocument;
-import model.Client;
 
 public class CadastroCliente extends javax.swing.JPanel {
+
+    private static final DAO.Controller controller = new DAO.Controller("cliente");
     private final PlainDocument regDoc;
+
     public CadastroCliente() {
         initComponents();
-        regDoc = (PlainDocument)txtMat.getDocument();
+        regDoc = (PlainDocument) txtMat.getDocument();
         regDoc.setDocumentFilter(new DocFilter());
+        announcement.setVisible(false);
+        java.awt.EventQueue.invokeLater(() -> {
+            Utils.getAncestor(this).setSize(416, 339);
+            if (!controller.insert()){
+                List<String> v, t;
+                v = new ArrayList<>();
+                t = new ArrayList<>();
+                v.add("name");
+                v.add("course");
+                v.add("birth");
+                v.add("address");
+                t.add("character varying(256)");
+                t.add("character varying(128)");
+                t.add("date");
+                t.add("character varying(512)");
+                if(!controller.createTable("cliente", v, t)){
+                    Principal main = Utils.getAncestor(this, Principal.class);
+                    main.setButtonEnabled(CadastroCliente.class.getSimpleName(), false);
+                    main.setButtonEnabled(ConsultaCliente.class.getSimpleName(), false);
+                    main.remove(this);
+                }
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -37,6 +63,7 @@ public class CadastroCliente extends javax.swing.JPanel {
         txtCourse = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtAddress = new javax.swing.JTextArea();
+        announcement = new javax.swing.JLabel();
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel1.setText("Cadastro de Clientes");
@@ -44,15 +71,10 @@ public class CadastroCliente extends javax.swing.JPanel {
         jLabel2.setText("Nome:");
 
         txtMat.setFocusable(false);
-        txtMat.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtMatKeyPressed(evt);
-            }
-        });
 
         txtName.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtNameKeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -77,7 +99,7 @@ public class CadastroCliente extends javax.swing.JPanel {
         txtBirth.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter()));
         txtBirth.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtBirthKeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -87,55 +109,56 @@ public class CadastroCliente extends javax.swing.JPanel {
 
         txtCourse.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtCourseKeyPressed(evt);
+                Enter(evt);
             }
         });
 
         txtAddress.setColumns(20);
         txtAddress.setRows(5);
-        txtAddress.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtAddressKeyPressed(evt);
-            }
-        });
         jScrollPane1.setViewportView(txtAddress);
+
+        announcement.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        announcement.setText("ANNOUNCEMENT");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtMat, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtName))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 172, Short.MAX_VALUE)
-                                .addComponent(btnCadastrar)
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 144, Short.MAX_VALUE)
+                                .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnCancel))
-                            .addComponent(jScrollPane1)))
+                                .addComponent(txtMat, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addGap(18, 18, 18)
+                                .addComponent(txtName))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtBirth, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtCourse))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane1))))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel5)
+                        .addGap(33, 33, 33)
+                        .addComponent(announcement)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnCadastrar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtBirth, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtCourse)))
+                        .addComponent(btnCancel)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -160,15 +183,17 @@ public class CadastroCliente extends javax.swing.JPanel {
                     .addComponent(txtCourse, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
-                        .addGap(0, 65, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnCancel)
-                    .addComponent(btnCadastrar))
-                .addContainerGap())
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnCadastrar)
+                        .addComponent(btnCancel))
+                    .addComponent(announcement, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -176,60 +201,64 @@ public class CadastroCliente extends javax.swing.JPanel {
         this.getParent().remove(this);
     }//GEN-LAST:event_btnCancelActionPerformed
 
-    private boolean isNull(javax.swing.JTextField txt){
-        return txt == null || txt.getText().equals("");
-    }
     private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarActionPerformed
-        Client c = new Client();
-        try{
-            if(!isNull(txtName)){
-                c.setName(txtName.getText());
+        Entity c = new Entity();
+        try {
+            if (!Utils.isNull(txtName)) {
+                c.set("name", txtName.getText());
+            } else {
+                Utils.Announce("O Nome É Necessário.", announcement, 416, 339);
+                return;
             }
-            if(!isNull(txtBirth)){
-                try{
-                DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-                java.sql.Date data = new java.sql.Date(df.parse(txtBirth.getText()).getTime());
-                c.setBirth(data);
-                }catch(ParseException e){
-                    JOptionPane.showMessageDialog(null, "Invalid Date");
+            if (!Utils.isNull(txtBirth)) {
+                try {
+                    DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+                    java.sql.Date data = new java.sql.Date(df.parse(txtBirth.getText()).getTime());
+                    c.set("birth", data);
+                } catch (ParseException e) {
+                    Utils.Announce("O Formato de Data de Nascimento não pode ser utilizado.", announcement, 416, 339);
+                    return;
                 }
+            } else {
+                Utils.Announce("A Data de Nascimento\nÉ necessária.", announcement, 416, 339);
+                return;
             }
-            if(!isNull(txtCourse)){
-                c.setCourse(txtCourse.getText());
+            if (!Utils.isNull(txtCourse)) {
+                c.set("course", txtCourse.getText());
+            } else {
+                Utils.Announce("O Curso É Necessário.", announcement, 416, 339);
+                return;
             }
-            if(txtAddress != null && !txtAddress.getText().equals("")){
-                c.setAddress(txtAddress.getText());
+            if (!Utils.isNull(txtAddress)) {
+                c.set("address", txtAddress.getText());
+            } else {
+                Utils.Announce("O Endereço É Necessário.", announcement, 416, 339);
+                return;
             }
-            txtMat.setText(Integer.toString(new ClientDAO().insert(c)));
-            
-        } catch(NumberFormatException e){
-            System.out.println("Invalid format for Registry.\nException thrown: "+e.getMessage());
-            JOptionPane.showMessageDialog(null, "Invalid format for Registry.\nException thrown: "+e.getMessage());
+            txtMat.setText(Integer.toString(controller.insert(c)));
+            txtName.setText("");
+            txtBirth.setText("");
+            txtCourse.setText("");
+            txtAddress.setText("");
+        } catch (NumberFormatException e) {
+            Utils.pop("Formato inválido para Matrícula.\nErro: " + e.getMessage(), Utils.pop.ERRO);
         }
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
-    private void txtMatKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMatKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtMatKeyPressed
-
-    private void txtNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNameKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtNameKeyPressed
-
-    private void txtBirthKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBirthKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtBirthKeyPressed
-
-    private void txtAddressKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAddressKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtAddressKeyPressed
-
-    private void txtCourseKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCourseKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtCourseKeyPressed
+    private void Enter(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Enter
+        switch (evt.getKeyCode()) {
+            case KeyEvent.VK_ENTER:
+                btnCadastrarActionPerformed(null);
+                break;
+            case KeyEvent.VK_ESCAPE:
+                btnCancelActionPerformed(null);
+                break;
+        }
+    }//GEN-LAST:event_Enter
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel announcement;
     private javax.swing.JButton btnCadastrar;
     private javax.swing.JButton btnCancel;
     private javax.swing.JLabel jLabel1;

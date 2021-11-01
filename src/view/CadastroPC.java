@@ -1,37 +1,48 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package view;
 
-import DAO.PCDAO;
-import com.sun.glass.events.KeyEvent;
+import Utilities.Utils;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.text.PlainDocument;
-import model.PC;
+import model.Entity;
 
-/**
- *
- * @author PC 17
- */
 public class CadastroPC extends javax.swing.JPanel {
+
+    private static final DAO.Controller controller = new DAO.Controller("computador");
     private final PlainDocument[] ipFilter;
-    /**
-     * Creates new form CadastroPC
-     */
+
     public CadastroPC() {
         initComponents();
         ipFilter = new PlainDocument[4];
-        ipFilter[0] = (PlainDocument)ip1.getDocument();
-        ipFilter[1] = (PlainDocument)ip2.getDocument();
-        ipFilter[2] = (PlainDocument)ip3.getDocument();
-        ipFilter[3] = (PlainDocument)ip4.getDocument();
-        
+        ipFilter[0] = (PlainDocument) ip1.getDocument();
+        ipFilter[1] = (PlainDocument) ip2.getDocument();
+        ipFilter[2] = (PlainDocument) ip3.getDocument();
+        ipFilter[3] = (PlainDocument) ip4.getDocument();
+
         ipFilter[0].setDocumentFilter(new DocFilter(3));
         ipFilter[1].setDocumentFilter(new DocFilter(3));
         ipFilter[2].setDocumentFilter(new DocFilter(3));
         ipFilter[3].setDocumentFilter(new DocFilter(3));
-        
+
+        java.awt.EventQueue.invokeLater(() -> {
+            Utils.getAncestor(this).setSize(416, 339);
+            if (!controller.insert()) {
+                List<String> v, t;
+                v = new ArrayList<>();
+                t = new ArrayList<>();
+                v.add("name");
+                v.add("address");
+                t.add("character varying(256)");
+                t.add("character varying(32)");
+                if (!controller.createTable("computador", v, t)) {
+                    Principal main = Utils.getAncestor(this, Principal.class);
+                    main.setButtonEnabled(CadastroPC.class.getSimpleName(), false);
+                    main.setButtonEnabled(ConsultaPC.class.getSimpleName(), false);
+                    main.remove(this);
+                }
+            }
+        });
+
     }
 
     @SuppressWarnings("unchecked")
@@ -52,6 +63,8 @@ public class CadastroPC extends javax.swing.JPanel {
         ip3 = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         ip4 = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        txtID = new javax.swing.JLabel();
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel1.setText("Cadastro de Computador");
@@ -62,7 +75,7 @@ public class CadastroPC extends javax.swing.JPanel {
 
         txtName.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtNameKeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -82,7 +95,7 @@ public class CadastroPC extends javax.swing.JPanel {
 
         ip1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                ip1KeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -90,7 +103,7 @@ public class CadastroPC extends javax.swing.JPanel {
 
         ip2.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                ip2KeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -98,7 +111,7 @@ public class CadastroPC extends javax.swing.JPanel {
 
         ip3.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                ip3KeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -106,9 +119,14 @@ public class CadastroPC extends javax.swing.JPanel {
 
         ip4.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                ip4KeyPressed(evt);
+                Enter(evt);
             }
         });
+
+        jLabel8.setText("ID:");
+
+        txtID.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+        txtID.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -128,32 +146,39 @@ public class CadastroPC extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnCancel))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addGap(18, 18, 18)
-                                .addComponent(ip1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(ip2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(ip3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(ip4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 112, Short.MAX_VALUE)))
+                        .addComponent(jLabel3)
+                        .addGap(18, 18, 18)
+                        .addComponent(ip1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ip2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ip3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ip4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 112, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1)
+                        .addComponent(jLabel8)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -185,53 +210,38 @@ public class CadastroPC extends javax.swing.JPanel {
         this.getParent().remove(this);
     }//GEN-LAST:event_btnCancelActionPerformed
 
-    private boolean isNull(javax.swing.JTextField txt){
-        return txt == null || txt.getText().equals("");
-    }
     private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarActionPerformed
-        if(isNull(ip1)){
+        if (Utils.isNull(ip1)) {
             ip1.setText("000");
         }
-        if(isNull(ip2)){
+        if (Utils.isNull(ip2)) {
             ip2.setText("000");
         }
-        if(isNull(ip3)){
+        if (Utils.isNull(ip3)) {
             ip3.setText("000");
         }
-        if(isNull(ip4)){
+        if (Utils.isNull(ip4)) {
             ip4.setText("000");
         }
-        
         String IP = ip1.getText() + "." + ip2.getText() + "." + ip3.getText() + "." + ip4.getText();
-        PC pc = new PC();
-        if (txtName != null && !txtName.getText().equals("")) {
-            pc.setName(txtName.getText());
+        Entity pc = new Entity();
+        pc.set("name", txtName.getText());
+        if (Utils.isNull(IP) || !IP.equals("...")) {
+            pc.set("address", IP);
         }
-        if (IP != null && !IP.equals("")) {
-            pc.setAddress(IP);
-        }
-        new PCDAO().insert(pc);
+        txtID.setText("" + controller.insert(pc));
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
-    private void txtNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNameKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_txtNameKeyPressed
-
-    private void ip1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ip1KeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_ip1KeyPressed
-
-    private void ip2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ip2KeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_ip2KeyPressed
-
-    private void ip3KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ip3KeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_ip3KeyPressed
-
-    private void ip4KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ip4KeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnCadastrarActionPerformed(null);
-    }//GEN-LAST:event_ip4KeyPressed
+    private void Enter(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Enter
+        switch (evt.getKeyCode()) {
+            case java.awt.event.KeyEvent.VK_ENTER:
+                btnCadastrarActionPerformed(null);
+                break;
+            case java.awt.event.KeyEvent.VK_ESCAPE:
+                btnCancelActionPerformed(null);
+                break;
+        }
+    }//GEN-LAST:event_Enter
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -247,7 +257,9 @@ public class CadastroPC extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel txtID;
     private javax.swing.JTextField txtName;
     // End of variables declaration//GEN-END:variables
 }

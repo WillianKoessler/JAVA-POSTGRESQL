@@ -1,26 +1,47 @@
 package view;
 
-import DAO.PCDAO;
+import Utilities.Utils;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
-import model.PC;
+import model.Entity;
 
 public class ConsultaPC extends javax.swing.JPanel {
-    private ArrayList<PC> query;
+
+    private ArrayList<model.Entity> query;
+    private static final DAO.Controller controller = new DAO.Controller("computador");
+
     public ConsultaPC() {
         initComponents();
-        
+
         jTable.getModel().addTableModelListener((TableModelEvent tme) -> {
-            if(tme.getType() == TableModelEvent.UPDATE && query != null && query.size() > tme.getFirstRow()){
+            if (tme.getType() == TableModelEvent.UPDATE && query != null && query.size() > tme.getFirstRow()) {
                 int row = jTable.getSelectedRow();
-                PC pc = new PC();
-                pc.setID(Integer.parseInt(jTable.getModel().getValueAt(row,0).toString()));
-                pc.setAddress(jTable.getModel().getValueAt(row, 1).toString());
-                pc.setName(jTable.getModel().getValueAt(row, 2).toString());
-                System.out.println("Table Updating object: "+pc);
-                new PCDAO().update(pc);
+                model.Entity pc = new model.Entity();
+                pc.setID(Integer.parseInt(jTable.getModel().getValueAt(row, 0).toString()));
+                pc.set("address", jTable.getModel().getValueAt(row, 1).toString());
+                pc.set("name", jTable.getModel().getValueAt(row, 2).toString());
+                controller.update(pc);
+            }
+        });
+        java.awt.EventQueue.invokeLater(() -> {
+            Utils.getAncestor(this).setSize(416, 339);
+            if (!controller.insert()) {
+                List<String> v, t;
+                v = new ArrayList<>();
+                t = new ArrayList<>();
+                v.add("name");
+                v.add("address");
+                t.add("character varying(256)");
+                t.add("character varying(32)");
+                if (!controller.createTable("computador", v, t)) {
+                    Principal main = Utils.getAncestor(this, Principal.class);
+                    main.setButtonEnabled(CadastroPC.class.getSimpleName(), false);
+                    main.setButtonEnabled(ConsultaPC.class.getSimpleName(), false);
+                    main.remove(this);
+                }
             }
         });
     }
@@ -44,7 +65,7 @@ public class ConsultaPC extends javax.swing.JPanel {
 
         txtName.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtNameKeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -52,7 +73,7 @@ public class ConsultaPC extends javax.swing.JPanel {
 
         txtIP.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtIPKeyPressed(evt);
+                Enter(evt);
             }
         });
 
@@ -163,33 +184,43 @@ public class ConsultaPC extends javax.swing.JPanel {
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQueryActionPerformed
-        query = new PCDAO().retrieve(txtName.getText(), txtIP.getText());
-        DefaultTableModel model = (DefaultTableModel)jTable.getModel();
+        Entity mask = new Entity();
+        if (!Utils.isNull(txtName)) {
+            mask.set("name", txtName.getText());
+        }
+        if (!Utils.isNull(txtIP)) {
+            mask.set("address", txtIP.getText());
+        }
+        query = controller.retrieve(mask);
+        DefaultTableModel model = (DefaultTableModel) jTable.getModel();
         model.setRowCount(0);
         query.forEach((pc) -> {
-            model.addRow(new Object[]{pc.getID(), pc.getAddress(), pc.getName()});
+            model.addRow(new Object[]{pc.getID(), pc.get("address"), pc.get("name")});
         });
     }//GEN-LAST:event_btnQueryActionPerformed
-    
+
+    private void Enter(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Enter
+        switch (evt.getKeyCode()) {
+            case KeyEvent.VK_ENTER:
+                btnQueryActionPerformed(null);
+                break;
+            case KeyEvent.VK_ESCAPE:
+                btnCancelActionPerformed(null);
+                break;
+        }
+    }//GEN-LAST:event_Enter
+
     private void jTableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTableKeyPressed
-                if(evt.getKeyCode() ==  KeyEvent.VK_DELETE){
-                    new PCDAO().delete(
-                            Integer.parseInt(
-                                    jTable.getModel().getValueAt(
-                                            jTable.getSelectedRow(),0).toString()
-                            )
-                    );
-                    btnQueryActionPerformed(null);
-      }
+        if (evt.getKeyCode() == KeyEvent.VK_DELETE) {
+            if (jTable.getModel().getRowCount() < 1) {
+                return;
+            }
+            controller.delete(Integer.parseInt(jTable.getModel().getValueAt(jTable.getSelectedRow(), 0).toString()));
+            btnQueryActionPerformed(null);
+        } else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            btnCancelActionPerformed(null);
+        }
     }//GEN-LAST:event_jTableKeyPressed
-
-    private void txtNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNameKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnQueryActionPerformed(null);
-    }//GEN-LAST:event_txtNameKeyPressed
-
-    private void txtIPKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtIPKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER) btnQueryActionPerformed(null);
-    }//GEN-LAST:event_txtIPKeyPressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;

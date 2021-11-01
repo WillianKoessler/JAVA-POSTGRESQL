@@ -1,9 +1,8 @@
 package view;
 
 import DAO.ConnectionFactory;
-import ErrorHandling.Error;
-import java.awt.Color;
-import java.awt.Container;
+import Utilities.Utils;
+import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,38 +15,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
+import javax.swing.JOptionPane;
 
 public class SetupConnection extends javax.swing.JPanel {
 
-    private static final String announceBegin = "<html><div align=center width=190px>";
-    private static final String announceEnd = "</div></html>";
+    private static boolean close = true;
     private final String RecordFile = "database.record";
-    private List<String> rAdd, rDB, rUser, rPass;
+    private final List<String> rAdd, rDB, rUser, rPass;
 
-    public SetupConnection() {
+    private SetupConnection() {
         this.setName("SetupConnection");
-        rAdd = new ArrayList<String>();
-        rDB = new ArrayList<String>();
-        rUser = new ArrayList<String>();
-        rPass = new ArrayList<String>();
+        rAdd = new ArrayList<>();
+        rDB = new ArrayList<>();
+        rUser = new ArrayList<>();
+        rPass = new ArrayList<>();
         initComponents();
         Announcement.setVisible(false);
-        java.awt.EventQueue.invokeLater(() -> {
-            ((javax.swing.JDialog) getAncestor(this)).setResizable(true);
-            Announcement.setVisible(false);
-            this.getAncestor(this).setSize(312, 200);
-        });
         checkRecords();
     }
+            
+    
 
-    private Container getAncestor(Container obj) {
-        if ((obj.getParent()).getParent() != null) {
-            return getAncestor(obj.getParent());
-        } else {
-            return obj;
+    public static boolean ShowDialog() {
+        try {
+            JOptionPane.showOptionDialog(null, new SetupConnection(), "Nova Conexão", -1, -1, null, new Object[]{}, null);
+        } catch (HeadlessException e) {
+            JOptionPane.showMessageDialog(null, e);
         }
+        return close;
     }
 
     private void checkRecords() {
@@ -78,65 +73,10 @@ public class SetupConnection extends javax.swing.JPanel {
                 outputStream.write((" database=" + txtDatabase.getText()).getBytes());
                 outputStream.write((" user=" + txtUser.getText()).getBytes());
                 outputStream.write("\n".getBytes());
-//                outputStream.write((" password=" + new String(txtPassword.getPassword())).getBytes()); // should save password?
             }
         } catch (IOException ex) {
             System.out.println(ex);
         }
-    }
-
-    private void CloseWindow(java.awt.event.ActionEvent evt) {
-        if (evt != null) {
-            SwingUtilities.getWindowAncestor((JComponent) evt.getSource()).dispose();
-        }
-    }
-
-    private boolean isNull(String str) {
-        return str == null || str.equals("") || str.equals(announceBegin + announceEnd);
-    }
-
-    private Color highlight(int code) {
-        switch (code) {
-            case 0:
-                return Color.black;
-            case 1:
-                return Color.green;
-            case 2:
-                return Color.yellow;
-            case 3:
-                return Color.RED;
-        }
-        return null;
-    }
-
-    private void announce(String msg, int codes) {
-        if (codes > 9999 || codes < 1000) {
-            System.out.println("wrong format");
-            return;
-        }
-        int add = (int) java.lang.Math.floor(codes / 1000);
-        int db = (int) java.lang.Math.floor((codes - add * 1000) / 100);
-        int user = (int) java.lang.Math.floor((codes - add * 1000 - db * 100) / 10);
-        int pass = (int) java.lang.Math.floor(codes - add * 1000 - db * 100 - user * 10);
-        addLabel.setForeground(highlight(add));
-        dbLabel.setForeground(highlight(db));
-        userLabel.setForeground(highlight(user));
-        passLabel.setForeground(highlight(pass));
-
-        if (isNull(msg)) {
-            return;
-        }
-        msg = announceBegin + msg.replaceAll("\n", "<br>") + "<br>" + announceEnd;
-
-        int brs = 0;
-        Pattern p = Pattern.compile("<br>");
-        Matcher m = p.matcher(msg);
-        while (m.find()) {
-            brs++;
-        }
-        Announcement.setText(msg);
-        Announcement.setVisible(true);
-        this.getAncestor(this).setSize(312, 225 + brs * 15);
     }
 
     @SuppressWarnings("unchecked")
@@ -146,9 +86,9 @@ public class SetupConnection extends javax.swing.JPanel {
         dbLabel = new javax.swing.JLabel();
         userLabel = new javax.swing.JLabel();
         passLabel = new javax.swing.JLabel();
-        txtAddress = new Utils.JSuggestedTextField(rAdd);
-        txtDatabase = new Utils.JSuggestedTextField(rDB);
-        txtUser = new Utils.JSuggestedTextField(rUser);
+        txtAddress = new Utilities.JSuggestedTextField(rAdd);
+        txtDatabase = new Utilities.JSuggestedTextField(rDB);
+        txtUser = new Utilities.JSuggestedTextField(rUser);
         txtPassword = new javax.swing.JPasswordField();
         btnCancel = new javax.swing.JButton();
         btnConnect = new javax.swing.JButton();
@@ -209,6 +149,7 @@ public class SetupConnection extends javax.swing.JPanel {
         addLabel.setText("Endereço:");
 
         Announcement.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        Announcement.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         Announcement.setText("ANNOUNCEMENT"); // NOI18N
         Announcement.setAlignmentX(0.5F);
         Announcement.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
@@ -219,14 +160,14 @@ public class SetupConnection extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap(118, Short.MAX_VALUE)
+                        .addGap(0, 108, Short.MAX_VALUE)
                         .addComponent(btnConnect)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnCancel))
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(addLabel)
                             .addComponent(dbLabel)
@@ -237,12 +178,12 @@ public class SetupConnection extends javax.swing.JPanel {
                             .addComponent(txtAddress)
                             .addComponent(txtDatabase)
                             .addComponent(txtUser)
-                            .addComponent(txtPassword))))
+                            .addComponent(txtPassword)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(Announcement)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(Announcement)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -269,32 +210,22 @@ public class SetupConnection extends javax.swing.JPanel {
                     .addComponent(btnConnect))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(Announcement)
-                .addContainerGap())
+                .addContainerGap(110, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void Enter(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Enter
         switch (evt.getKeyCode()) {
-            case KeyEvent.VK_ENTER: {
-                btnConnectActionPerformed(
-                        new java.awt.event.ActionEvent(
-                                this,
-                                java.awt.event.ActionEvent.ACTION_PERFORMED,
-                                "Conectar",
-                                this.hashCode(),
-                                0
-                        )
-                );
+            case KeyEvent.VK_ENTER:
+                btnConnectActionPerformed(null);
                 break;
-            }
-            case KeyEvent.VK_DELETE: {
-                System.out.println(this.getAncestor(this).getSize());
+            case KeyEvent.VK_ESCAPE:
+                btnCancelActionPerformed(null);
                 break;
-            }
         }
     }//GEN-LAST:event_Enter
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        CloseWindow(evt);
+        Utils.CloseWindow(this);
     }//GEN-LAST:event_btnCancelActionPerformed
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
         String add = txtAddress.getText(),
@@ -302,30 +233,25 @@ public class SetupConnection extends javax.swing.JPanel {
                 user = txtUser.getText(),
                 pass = new String(txtPassword.getPassword()),
                 err = "";
-        int code = 0;
-        if (isNull(add)) {
-            err += (isNull(err) ? "" : "\n") + "Endereço Inválido.";
-            code += 3000;
+        if (Utils.isNull(add)) {
+            err += (Utils.isNull(err) ? "" : "\n") + "Endereço Inválido.";
         }
-        if (isNull(db)) {
-            err += (isNull(err) ? "" : "\n") + "Database Inválido.";
-            code += 300;
+        if (Utils.isNull(db)) {
+            err += (Utils.isNull(err) ? "" : "\n") + "Database Inválido.";
         }
-        if (isNull(user)) {
-            err += (isNull(err) ? "" : "\n") + "Usuário Inválido.";
-            code += 30;
+        if (Utils.isNull(user)) {
+            err += (Utils.isNull(err) ? "" : "\n") + "Usuário Inválido.";
         }
-        if (isNull(pass)) {
-            err += (isNull(err) ? "" : "\n") + "Senha Inválida.";
-            code += 3;
+        if (Utils.isNull(pass)) {
+            err += (Utils.isNull(err) ? "" : "\n") + "Senha Inválida.";
         }
-        if (!isNull(err)) {
-            System.out.println(err);
-            announce(err, code);
+        if (!Utils.isNull(err)) {
+            Utils.Announce(err, Announcement, 312, 200);
             return;
         }
-        ConnectionFactory.setConnectionConfiguration(
-                txtAddress.getText() + '/' + txtDatabase.getText(),
+        ConnectionFactory.Configure(
+                txtAddress.getText(),
+                txtDatabase.getText(),
                 txtUser.getText(),
                 new String(txtPassword.getPassword())
         );
@@ -334,16 +260,26 @@ public class SetupConnection extends javax.swing.JPanel {
                 if (!rAdd.contains(add) && !rDB.contains(db) && !rUser.contains(user) && !rPass.contains(pass)) {
                     generateRecord();
                 }
-                CloseWindow(evt);
+                SetupConnection.close = false;
+                Utils.CloseWindow(this);
             }
-        } catch (Error e) {
-            if (e.message().equals("Authentication Failed")) {
-                announce("Usuário ou Senha Incorretos", 1222);
-            } else if (e.message().equals("Server couldn't be reached.")) {
-                announce("Servidor não responde", 3000);
-            } else {
-                announce("Versão do Servidor\ne a versão do programa\nsão diferentes.\n\nServidor não suportado.", 3333);
+        } catch (java.sql.SQLException e) {
+            String msg;
+            switch (e.getMessage()) {
+                case "The connection attempt failed.":
+                    msg = "Usuário ou Senha Incorretos";
+                    break;
+                case "Connection to localhost:5431 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.":
+                    msg = "Servidor não responde.\nVerifique se o mesmo encontra-se no endereço e porta citados e está aberto a conexões TCP/IP.";
+                    break;
+                case "The authentication type 10 is not supported. Check that you have configured the pg_hba.conf file to include the client's IP address or subnet, and that it is using an authentication scheme supported by the driver.":
+                    msg = "Versão do Servidor\ne a versão do programa\nsão diferentes.\n\nServidor não suportado.\n" + e.getMessage();
+                    break;
+                default:
+                    msg = "Erro desconhecido.\nMensagem:\n" + e.getMessage();
+                    break;
             }
+            Utils.Announce(msg, Announcement, 312, 200);
         }
     }//GEN-LAST:event_btnConnectActionPerformed
 
